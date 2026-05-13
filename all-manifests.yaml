@@ -1,20 +1,3 @@
-# ============================================================
-# SETUP GITOPS - NGINX & APACHE DENGAN CONFIGMAP
-# ============================================================
-# Ini setup buat ngereplace index.html dari ConfigMap
-# ConfigMap = tempat nyimpen data yang bisa di-mount ke pod
-# 
-# Port yang digunakan:
-# - NGINX: 80 (di dalam pod) -> /usr/share/nginx/html/index.html
-# - APACHE: 80 (di dalam pod) -> /usr/local/apache2/htdocs/index.html
-#
-# Cara kerjanya:
-# 1. ConfigMap dibuat berisi teks "Ini tampilan dari NGINX/HTTPD"
-# 2. Pod mount ConfigMap ke document root
-# 3. Ketika akses web, langsung return isi dari ConfigMap
-# 4. Ganti ConfigMap = pod otomatis update (rolling update)
-# ============================================================
-
 # ===== CONFIG UNTUK NGINX =====
 # Ini tempat nyimpen file index.html yang bakal ditampilkan di browser
 apiVersion: v1
