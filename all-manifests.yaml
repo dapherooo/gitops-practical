@@ -1,3 +1,22 @@
+# ============================================================
+# SETUP GITOPS - NGINX & APACHE DENGAN CONFIGMAP
+# ============================================================
+# Ini setup buat ngereplace index.html dari ConfigMap
+# ConfigMap = tempat nyimpen data yang bisa di-mount ke pod
+# 
+# Port yang digunakan:
+# - NGINX: 80 (di dalam pod) -> /usr/share/nginx/html/index.html
+# - APACHE: 80 (di dalam pod) -> /usr/local/apache2/htdocs/index.html
+#
+# Cara kerjanya:
+# 1. ConfigMap dibuat berisi teks "Ini tampilan dari NGINX/HTTPD"
+# 2. Pod mount ConfigMap ke document root
+# 3. Ketika akses web, langsung return isi dari ConfigMap
+# 4. Ganti ConfigMap = pod otomatis update (rolling update)
+# ============================================================
+
+# ===== CONFIG UNTUK NGINX =====
+# Ini tempat nyimpen file index.html yang bakal ditampilkan di browser
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,6 +26,9 @@ data:
   index.html: |
     Ini tampilan dari NGINX dan nama saya dahnur
 ---
+# ===== JALANKAN NGINX =====
+# Ini yang bikin pod nginx jalan
+# Replicas: 2 = buat 2 pod nginx biar fault tolerant (kalo 1 rusak, masih ada 1)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,15 +51,18 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: nginx-html
-          mountPath: /usr/share/nginx/html
+          mountPath: /usr/share/nginx/html  # Lokasi document root nginx
       volumes:
       - name: nginx-html
         configMap:
-          name: nginx-config
+          name: nginx-config  # Ambil isi dari ConfigMap ini
           items:
-          - key: index.html
-            path: index.html
+          - key: index.html   # Key dari ConfigMap
+            path: index.html  # Nama file di document root
 ---
+# ===== SERVICE NGINX =====
+# Ini yang expose nginx agar bisa diakses dari mana-mana
+# Tipe ClusterIP = bisa diakses dalam cluster
 apiVersion: v1
 kind: Service
 metadata:
@@ -52,6 +77,8 @@ spec:
     port: 80
     targetPort: 80
 ---
+# ===== CONFIG UNTUK HTTPD (APACHE) =====
+# Sama kayak nginx, ini nyimpen index.html untuk apache
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -61,6 +88,9 @@ data:
   index.html: |
     Ini tampilan dari HTTPD dan nama saya dahnur
 ---
+# ===== JALANKAN APACHE HTTPD =====
+# Ini yang bikin pod apache jalan
+# Same thing like nginx, 2 replicas untuk high availability
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -83,15 +113,17 @@ spec:
         - containerPort: 80
         volumeMounts:
         - name: httpd-html
-          mountPath: /usr/local/apache2/htdocs
+          mountPath: /usr/local/apache2/htdocs  # Lokasi document root apache
       volumes:
       - name: httpd-html
         configMap:
-          name: httpd-config
+          name: httpd-config  # Ambil isi dari ConfigMap ini
           items:
-          - key: index.html
-            path: index.html
+          - key: index.html   # Key dari ConfigMap
+            path: index.html  # Nama file di document root
 ---
+# ===== SERVICE APACHE HTTPD =====
+# Ini yang expose apache agar bisa diakses
 apiVersion: v1
 kind: Service
 metadata:
