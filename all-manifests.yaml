@@ -105,34 +105,4 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: gitops-ingress
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: nginx.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: simple-nginx
-            port:
-              number: 80
-  - host: httpd.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: simple-httpd
-            port:
-              number: 80
+
