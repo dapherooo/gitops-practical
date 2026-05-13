@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: httpd-config
+  namespace: default
+data:
+  index.html: |
+    Ini tampilan dari HTTPD dan nama saya dahnur
